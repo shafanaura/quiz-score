@@ -1,0 +1,1745 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      Quiz Score Tracker - Multi-Player Quiz Scoring App | Real-time Score
+      Management
+    </title>
+    <meta
+      name="description"
+      content="Aplikasi web modern untuk melacak skor kuis multi-pemain secara real-time. Fitur lengkap dengan statistik, history, dan multiple themes. Gratis dan mudah digunakan."
+    />
+    <meta
+      name="keywords"
+      content="quiz score, score tracker, quiz app, multi-player quiz, score management, quiz game, real-time scoring, quiz competition"
+    />
+    <meta name="author" content="Quiz Score App" />
+    <meta
+      property="og:title"
+      content="Quiz Score Tracker - Multi-Player Quiz Scoring App"
+    />
+    <meta
+      property="og:description"
+      content="Aplikasi web modern untuk melacak skor kuis multi-pemain secara real-time dengan fitur lengkap."
+    />
+    <meta property="og:type" content="website" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+        position: relative;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(
+            circle at 20% 50%,
+            rgba(255, 255, 255, 0.1) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 80% 80%,
+            rgba(255, 255, 255, 0.1) 0%,
+            transparent 50%
+          );
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      .container {
+        max-width: 1600px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 1;
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 40px;
+        text-align: center;
+        text-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        letter-spacing: -1px;
+      }
+
+      .players-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 24px;
+        margin-bottom: 24px;
+      }
+
+      @media (max-width: 768px) {
+        .players-grid {
+          grid-template-columns: 1fr;
+          gap: 16px;
+        }
+
+        h1 {
+          font-size: 1.5rem;
+          margin-bottom: 20px;
+        }
+
+        .player-card {
+          padding: 20px;
+        }
+
+        .score-display {
+          font-size: 3.5rem;
+        }
+
+        .score-section {
+          flex-direction: column;
+          gap: 16px;
+        }
+
+        .score-history {
+          width: 100%;
+          height: 180px;
+        }
+
+        .controls {
+          padding: 20px;
+        }
+
+        .control-buttons {
+          flex-direction: column;
+        }
+
+        .btn-control {
+          width: 100%;
+        }
+
+        body {
+          padding: 12px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .score-display {
+          font-size: 3rem;
+        }
+
+        .player-header input {
+          font-size: 1.25rem;
+        }
+
+        .action-buttons {
+          flex-direction: column;
+        }
+      }
+
+      .player-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 24px;
+        padding: 32px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .player-card::before {
+        content: "";
+        position: absolute;
+        top: -1px;
+        left: -1px;
+        right: -1px;
+        height: 5px;
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        border-radius: 24px 24px 0 0;
+        z-index: 1;
+      }
+
+      .player-header {
+        margin-bottom: 24px;
+        text-align: center;
+      }
+
+      .player-header input {
+        width: 100%;
+        padding: 14px 20px;
+        font-size: 1.5rem;
+        font-weight: 700;
+        border: 2px solid rgba(102, 126, 234, 0.3);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.8);
+        transition: all 0.3s ease;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      }
+
+      .player-header input:focus {
+        outline: none;
+        border-color: #667eea;
+        background: white;
+        box-shadow: 0 4px 16px rgba(102, 126, 234, 0.2);
+        transform: scale(1.02);
+      }
+
+      .score-section {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        margin-bottom: 24px;
+      }
+
+      .score-main {
+        flex: 1;
+      }
+
+      .score-display {
+        font-size: 5.5rem;
+        font-weight: 900;
+        text-align: center;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        letter-spacing: -4px;
+        transition: all 0.3s ease;
+        line-height: 1;
+        text-shadow: 0 2px 10px rgba(102, 126, 234, 0.2);
+      }
+
+      .score-display.negative {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .score-display.animate {
+        animation: scoreChange 0.5s ease;
+      }
+
+      @keyframes scoreChange {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.15);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      .score-change-indicator {
+        text-align: center;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-top: 12px;
+        min-height: 36px;
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+
+      .score-change-indicator.show {
+        opacity: 1;
+        animation: fadeOut 2s forwards;
+      }
+
+      .score-change-indicator.positive {
+        color: #10b981;
+      }
+
+      .score-change-indicator.negative {
+        color: #ef4444;
+      }
+
+      @keyframes fadeOut {
+        0% {
+          opacity: 1;
+        }
+        70% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0;
+        }
+      }
+
+      .score-history {
+        width: 160px;
+        background: linear-gradient(
+          135deg,
+          rgba(102, 126, 234, 0.05) 0%,
+          rgba(118, 75, 162, 0.05) 100%
+        );
+        border-radius: 12px;
+        padding: 16px;
+        height: 240px;
+        overflow-y: auto;
+        border: 1px solid rgba(102, 126, 234, 0.2);
+        box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.05);
+      }
+
+      .score-history-title {
+        font-size: 0.8125rem;
+        font-weight: 700;
+        color: #667eea;
+        margin-bottom: 12px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .score-history-title::before {
+        content: "📊";
+        font-size: 0.875rem;
+      }
+
+      .history-item-inline {
+        padding: 10px 12px;
+        margin-bottom: 8px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border-left: 4px solid transparent;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        transition: all 0.2s ease;
+      }
+
+      .history-item-inline:hover {
+        transform: translateX(4px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .history-item-inline.correct {
+        border-left-color: #10b981;
+        color: #065f46;
+      }
+
+      .history-item-inline.wrong {
+        border-left-color: #ef4444;
+        color: #991b1b;
+      }
+
+      .history-item-inline.new-item {
+        animation: slideIn 0.3s ease;
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateX(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      .stats-row {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 20px;
+        font-size: 0.875rem;
+        color: #6b7280;
+      }
+
+      .stat {
+        flex: 1;
+        text-align: center;
+        padding: 16px;
+        background: linear-gradient(
+          135deg,
+          rgba(102, 126, 234, 0.08) 0%,
+          rgba(118, 75, 162, 0.08) 100%
+        );
+        border-radius: 12px;
+        border: 1px solid rgba(102, 126, 234, 0.2);
+        transition: all 0.3s ease;
+      }
+
+      .stat:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+        border-color: rgba(102, 126, 234, 0.4);
+      }
+
+      .stat-label {
+        font-weight: 600;
+        font-size: 0.875rem;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .stat-value {
+        font-weight: 800;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        display: block;
+        margin-top: 8px;
+        font-size: 1.75rem;
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 12px;
+      }
+
+      .btn {
+        flex: 1;
+        padding: 18px 24px;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.05rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .btn::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+      }
+
+      .btn-correct {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+      }
+
+      .btn-correct:hover {
+        background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+      }
+
+      .btn-wrong {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+      }
+
+      .btn-wrong:hover {
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+      }
+
+      .controls {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 32px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        margin-bottom: 24px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      }
+
+      .controls h3,
+      .add-player-section h3,
+      .score-settings h3 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .control-buttons {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .btn-control {
+        padding: 14px 28px;
+        border: 2px solid rgba(102, 126, 234, 0.3);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.9);
+        color: #667eea;
+        font-size: 0.9375rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
+
+      .btn-control:hover {
+        background: rgba(102, 126, 234, 0.1);
+        border-color: #667eea;
+        transform: translateY(-3px);
+        box-shadow: 0 4px 16px rgba(102, 126, 234, 0.2);
+      }
+
+      .btn-reset {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-color: transparent;
+        box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+      }
+
+      .btn-reset:hover {
+        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        box-shadow: 0 6px 24px rgba(102, 126, 234, 0.4);
+        transform: translateY(-3px);
+      }
+
+      .history {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 32px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      }
+
+      .history h4 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .history-list {
+        max-height: 220px;
+        overflow-y: auto;
+      }
+
+      .history-item {
+        padding: 14px 16px;
+        margin-bottom: 8px;
+        border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+        border-radius: 8px;
+        font-size: 0.9375rem;
+        color: #6b7280;
+        background: rgba(102, 126, 234, 0.02);
+        transition: all 0.2s ease;
+      }
+
+      .history-item:hover {
+        background: rgba(102, 126, 234, 0.05);
+        transform: translateX(4px);
+      }
+
+      .history-item:last-child {
+        border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+        margin-bottom: 0;
+      }
+
+      .history-item strong {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 700;
+      }
+
+      .score-history::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .score-history::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .score-history::-webkit-scrollbar-thumb {
+        background: #d1d5db;
+        border-radius: 4px;
+      }
+
+      .score-history::-webkit-scrollbar-thumb:hover {
+        background: #9ca3af;
+      }
+
+      .history-list::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .history-list::-webkit-scrollbar-track {
+        background: #fafafa;
+        border-radius: 4px;
+      }
+
+      .history-list::-webkit-scrollbar-thumb {
+        background: #d1d5db;
+        border-radius: 4px;
+      }
+
+      .add-player-section {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 32px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        margin-bottom: 24px;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      }
+
+      .btn-add-player {
+        padding: 16px 32px;
+        border: 2px dashed rgba(102, 126, 234, 0.4);
+        border-radius: 12px;
+        background: linear-gradient(
+          135deg,
+          rgba(102, 126, 234, 0.05) 0%,
+          rgba(118, 75, 162, 0.05) 100%
+        );
+        color: #667eea;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+      }
+
+      .btn-add-player:hover {
+        background: linear-gradient(
+          135deg,
+          rgba(102, 126, 234, 0.15) 0%,
+          rgba(118, 75, 162, 0.15) 100%
+        );
+        border-color: #667eea;
+        border-style: solid;
+        transform: translateY(-3px);
+        box-shadow: 0 4px 16px rgba(102, 126, 234, 0.2);
+      }
+
+      .btn-remove-player {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        width: 36px;
+        height: 36px;
+        border: none;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+        font-size: 1.25rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+      }
+
+      .btn-remove-player:hover {
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        transform: scale(1.15) rotate(90deg);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+      }
+
+      .player-card {
+        position: relative;
+      }
+
+      /* Theme System */
+      body[data-theme="dark"] {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        color: #e2e8f0;
+      }
+
+      body[data-theme="dark"]::before {
+        background: radial-gradient(
+            circle at 20% 50%,
+            rgba(102, 126, 234, 0.1) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 80% 80%,
+            rgba(118, 75, 162, 0.1) 0%,
+            transparent 50%
+          );
+      }
+
+      body[data-theme="dark"] h1 {
+        color: #f1f5f9;
+      }
+
+      body[data-theme="dark"] .player-card,
+      body[data-theme="dark"] .controls,
+      body[data-theme="dark"] .history,
+      body[data-theme="dark"] .add-player-section,
+      body[data-theme="dark"] .score-settings {
+        background: #1e293b;
+        border-color: #334155;
+        color: #e2e8f0;
+      }
+
+      body[data-theme="dark"] .player-header input,
+      body[data-theme="dark"] .score-history,
+      body[data-theme="dark"] .stat {
+        background: #0f172a;
+        border-color: #334155;
+        color: #f1f5f9;
+      }
+
+      body[data-theme="dark"] .player-header input::placeholder {
+        color: #94a3b8;
+      }
+
+      body[data-theme="dark"] .score-display {
+        color: #f1f5f9;
+      }
+
+      body[data-theme="dark"] .score-change-indicator {
+        color: #f1f5f9;
+      }
+
+      body[data-theme="dark"] .score-change-indicator.positive {
+        color: #10b981;
+      }
+
+      body[data-theme="dark"] .score-change-indicator.negative {
+        color: #ef4444;
+      }
+
+      body[data-theme="dark"] .stat-label {
+        color: #cbd5e1;
+      }
+
+      body[data-theme="dark"] .stat-value {
+        color: #f1f5f9;
+      }
+
+      body[data-theme="dark"] .score-history-title {
+        color: #cbd5e1;
+      }
+
+      body[data-theme="dark"] .history-item-inline {
+        background: #0f172a;
+        color: #f1f5f9;
+      }
+
+      body[data-theme="dark"] .history-item-inline.correct {
+        color: #6ee7b7;
+      }
+
+      body[data-theme="dark"] .history-item-inline.wrong {
+        color: #fca5a5;
+      }
+
+      body[data-theme="dark"] .btn-control {
+        background: #1e293b;
+        border-color: #334155;
+        color: #f1f5f9;
+      }
+
+      body[data-theme="dark"] .btn-control:hover {
+        background: #334155;
+        color: #f1f5f9;
+      }
+
+      body[data-theme="dark"] .btn-reset {
+        background: #f1f5f9;
+        color: #0f172a;
+        border-color: #f1f5f9;
+      }
+
+      body[data-theme="dark"] .btn-reset:hover {
+        background: #e2e8f0;
+        border-color: #e2e8f0;
+        color: #0f172a;
+      }
+
+      body[data-theme="dark"] .btn-add-player {
+        background: #0f172a;
+        border-color: #334155;
+        color: #f1f5f9;
+      }
+
+      body[data-theme="dark"] .btn-add-player:hover {
+        background: #1e293b;
+        border-color: #475569;
+      }
+
+      body[data-theme="dark"] .add-player-section h3,
+      body[data-theme="dark"] .controls h3,
+      body[data-theme="dark"] .history h4,
+      body[data-theme="dark"] .score-settings h3 {
+        color: #f1f5f9;
+      }
+
+      body[data-theme="dark"] .history-item {
+        border-color: #334155;
+        color: #cbd5e1;
+      }
+
+      body[data-theme="dark"] .history-item strong {
+        color: #f1f5f9;
+      }
+
+      body[data-theme="dark"] .history-item-inline div {
+        color: #94a3b8;
+      }
+
+      body[data-theme="dark"] .score-input-group label {
+        color: #cbd5e1;
+      }
+
+      body[data-theme="dark"] .score-input-group input {
+        background: #0f172a;
+        border-color: #334155;
+        color: #f1f5f9;
+      }
+
+      body[data-theme="dark"] .score-input-group input:focus {
+        border-color: #3b82f6;
+      }
+
+      body[data-theme="dark"] .score-input-group input::placeholder {
+        color: #94a3b8;
+      }
+
+      body[data-theme="dark"]
+        .history-item-inline
+        div[style*="color: #9ca3af"] {
+        color: #94a3b8 !important;
+      }
+
+      body[data-theme="dark"] div[style*="color: #9ca3af"] {
+        color: #94a3b8 !important;
+      }
+
+      body[data-theme="dark"] .stat {
+        color: #cbd5e1;
+      }
+
+      body[data-theme="blue"] {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      }
+
+      body[data-theme="blue"]::before {
+        background: radial-gradient(
+            circle at 20% 50%,
+            rgba(255, 255, 255, 0.1) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 80% 80%,
+            rgba(255, 255, 255, 0.1) 0%,
+            transparent 50%
+          );
+      }
+
+      body[data-theme="blue"] .player-card,
+      body[data-theme="blue"] .controls,
+      body[data-theme="blue"] .history,
+      body[data-theme="blue"] .add-player-section {
+        background: #dbeafe;
+        border-color: #93c5fd;
+      }
+
+      body[data-theme="blue"] .btn-correct {
+        background: #2563eb;
+      }
+
+      body[data-theme="green"] {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      }
+
+      body[data-theme="green"]::before {
+        background: radial-gradient(
+            circle at 20% 50%,
+            rgba(255, 255, 255, 0.1) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 80% 80%,
+            rgba(255, 255, 255, 0.1) 0%,
+            transparent 50%
+          );
+      }
+
+      body[data-theme="green"] .player-card,
+      body[data-theme="green"] .controls,
+      body[data-theme="green"] .history,
+      body[data-theme="green"] .add-player-section {
+        background: #dcfce7;
+        border-color: #86efac;
+      }
+
+      body[data-theme="purple"] {
+        background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%);
+      }
+
+      body[data-theme="purple"]::before {
+        background: radial-gradient(
+            circle at 20% 50%,
+            rgba(255, 255, 255, 0.1) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 80% 80%,
+            rgba(255, 255, 255, 0.1) 0%,
+            transparent 50%
+          );
+      }
+
+      body[data-theme="purple"] .player-card,
+      body[data-theme="purple"] .controls,
+      body[data-theme="purple"] .history,
+      body[data-theme="purple"] .add-player-section {
+        background: #f3e8ff;
+        border-color: #c4b5fd;
+      }
+
+      body[data-theme="purple"] .btn-correct {
+        background: #9333ea;
+      }
+
+      .theme-selector {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+      }
+
+      .theme-btn {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+      }
+
+      .theme-btn:hover {
+        transform: scale(1.1) rotate(15deg);
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+        background: white;
+      }
+
+      .theme-menu {
+        position: absolute;
+        top: 68px;
+        right: 0;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
+        padding: 16px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        display: none;
+        flex-direction: column;
+        gap: 10px;
+        min-width: 200px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        animation: slideDown 0.3s ease;
+      }
+
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .theme-menu.show {
+        display: flex;
+      }
+
+      .theme-option {
+        padding: 12px 16px;
+        border-radius: 10px;
+        border: 2px solid transparent;
+        background: rgba(102, 126, 234, 0.05);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 0.9375rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+
+      .theme-option:hover {
+        background: rgba(102, 126, 234, 0.15);
+        border-color: rgba(102, 126, 234, 0.3);
+        transform: translateX(4px);
+      }
+
+      .theme-option.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-color: transparent;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+      }
+
+      .theme-color {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: 2px solid rgba(0, 0, 0, 0.1);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+      }
+
+      .theme-option:hover .theme-color {
+        transform: scale(1.15);
+      }
+
+      body[data-theme="dark"] .theme-menu {
+        background: #1e293b;
+        border-color: #334155;
+      }
+
+      body[data-theme="dark"] .theme-option {
+        background: #0f172a;
+        color: #e2e8f0;
+      }
+
+      body[data-theme="dark"] .theme-option:hover {
+        background: #1e293b;
+      }
+
+      body[data-theme="dark"] .theme-option.active {
+        background: #3b82f6;
+        color: white;
+      }
+
+      body[data-theme="dark"] .theme-btn {
+        background: #1e293b;
+        border-color: #334155;
+        color: #e2e8f0;
+      }
+
+      .score-settings {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 32px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        margin-bottom: 24px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      }
+
+      .score-inputs {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+      }
+
+      .score-input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .score-input-group label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #6b7280;
+      }
+
+      .score-input-group input {
+        padding: 12px 16px;
+        border: 2px solid rgba(102, 126, 234, 0.3);
+        border-radius: 10px;
+        font-size: 1rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      }
+
+      .score-input-group input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 4px 16px rgba(102, 126, 234, 0.2);
+        transform: scale(1.02);
+      }
+
+      body[data-theme="dark"] .score-settings {
+        background: #1e293b;
+        border-color: #334155;
+      }
+
+      body[data-theme="dark"] .score-settings h3 {
+        color: #e2e8f0;
+      }
+
+      body[data-theme="dark"] .score-input-group label {
+        color: #94a3b8;
+      }
+
+      body[data-theme="dark"] .score-input-group input {
+        background: #0f172a;
+        border-color: #334155;
+        color: #e2e8f0;
+      }
+
+      body[data-theme="dark"] .score-input-group input:focus {
+        border-color: #3b82f6;
+      }
+
+      @media (max-width: 768px) {
+        .theme-selector {
+          top: 12px;
+          right: 12px;
+        }
+
+        .theme-btn {
+          width: 40px;
+          height: 40px;
+          font-size: 1.25rem;
+        }
+
+        .theme-menu {
+          top: 52px;
+          right: 0;
+          min-width: 160px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="theme-selector">
+      <button class="theme-btn" id="themeToggle" title="Change Theme">
+        🎨
+      </button>
+      <div class="theme-menu" id="themeMenu">
+        <div class="theme-option active" data-theme="light">
+          <div class="theme-color" style="background: #fafafa"></div>
+          <span>Light</span>
+        </div>
+        <div class="theme-option" data-theme="dark">
+          <div class="theme-color" style="background: #0f172a"></div>
+          <span>Dark</span>
+        </div>
+        <div class="theme-option" data-theme="blue">
+          <div class="theme-color" style="background: #eff6ff"></div>
+          <span>Blue</span>
+        </div>
+        <div class="theme-option" data-theme="green">
+          <div class="theme-color" style="background: #f0fdf4"></div>
+          <span>Green</span>
+        </div>
+        <div class="theme-option" data-theme="purple">
+          <div class="theme-color" style="background: #faf5ff"></div>
+          <span>Purple</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <h1>🎯 Quiz Score App</h1>
+
+      <div class="players-grid">
+        <div class="player-card">
+          <div class="player-header">
+            <input type="text" id="player1Name" placeholder="Player 1" />
+          </div>
+          <div class="score-section">
+            <div class="score-main">
+              <div class="score-display" id="score1">0</div>
+              <div class="score-change-indicator" id="change1"></div>
+            </div>
+            <div class="score-history">
+              <div class="score-history-title">History</div>
+              <div id="history1">
+                <div
+                  style="
+                    text-align: center;
+                    color: #9ca3af;
+                    font-size: 0.75rem;
+                    font-weight: 500;
+                  "
+                >
+                  Empty
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="stats-row">
+            <div class="stat">
+              <div class="stat-label">✓ Correct</div>
+              <span class="stat-value" id="correct1">0</span>
+            </div>
+            <div class="stat">
+              <div class="stat-label">✗ Wrong</div>
+              <span class="stat-value" id="wrong1">0</span>
+            </div>
+          </div>
+          <div class="action-buttons">
+            <button
+              class="btn btn-correct"
+              onclick="handleAddScore(1, 'correct')"
+            >
+              <span style="font-size: 1.25rem">✓</span> Correct
+            </button>
+            <button class="btn btn-wrong" onclick="handleAddScore(1, 'wrong')">
+              <span style="font-size: 1.25rem">✗</span> Wrong
+            </button>
+          </div>
+        </div>
+
+        <div class="player-card">
+          <div class="player-header">
+            <input type="text" id="player2Name" placeholder="Player 2" />
+          </div>
+          <div class="score-section">
+            <div class="score-main">
+              <div class="score-display" id="score2">0</div>
+              <div class="score-change-indicator" id="change2"></div>
+            </div>
+            <div class="score-history">
+              <div class="score-history-title">History</div>
+              <div id="history2">
+                <div
+                  style="
+                    text-align: center;
+                    color: #9ca3af;
+                    font-size: 0.75rem;
+                    font-weight: 500;
+                  "
+                >
+                  Empty
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="stats-row">
+            <div class="stat">
+              <div class="stat-label">✓ Correct</div>
+              <span class="stat-value" id="correct2">0</span>
+            </div>
+            <div class="stat">
+              <div class="stat-label">✗ Wrong</div>
+              <span class="stat-value" id="wrong2">0</span>
+            </div>
+          </div>
+          <div class="action-buttons">
+            <button
+              class="btn btn-correct"
+              onclick="handleAddScore(2, 'correct')"
+            >
+              <span style="font-size: 1.25rem">✓</span> Correct
+            </button>
+            <button class="btn btn-wrong" onclick="handleAddScore(2, 'wrong')">
+              <span style="font-size: 1.25rem">✗</span> Wrong
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="score-settings">
+        <h3>⚙️ Score Settings</h3>
+        <div class="score-inputs">
+          <div class="score-input-group">
+            <label>Correct Answer Score</label>
+            <input
+              type="number"
+              id="correctScore"
+              value="100"
+              min="-1000"
+              max="1000"
+            />
+          </div>
+          <div class="score-input-group">
+            <label>Wrong Answer Score</label>
+            <input
+              type="number"
+              id="wrongScore"
+              value="-50"
+              min="-1000"
+              max="1000"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="add-player-section">
+        <h3>👥 Manage Players</h3>
+        <button class="btn-add-player" id="addPlayerBtn">
+          <span style="font-size: 1.125rem">➕</span> Add Player
+        </button>
+      </div>
+
+      <div class="controls">
+        <h3>🎮 Host Controls</h3>
+        <div class="control-buttons">
+          <button class="btn-control btn-reset" id="resetBtn">
+            <span style="font-size: 1.125rem">🔄</span> Reset Scores
+          </button>
+          <button class="btn-control" id="undoBtn">
+            <span style="font-size: 1.125rem">↩</span> Undo Last
+          </button>
+          <button class="btn-control" id="clearBtn">
+            <span style="font-size: 1.125rem">🗑</span> Clear History
+          </button>
+        </div>
+      </div>
+
+      <div class="history">
+        <h4>📋 Full History</h4>
+        <div class="history-list" id="historyList">
+          <div
+            style="
+              text-align: center;
+              color: #9ca3af;
+              padding: 20px;
+              font-weight: 500;
+            "
+          >
+            No activity yet
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let gameState = {
+        scores: { 1: 0, 2: 0 },
+        stats: {
+          1: { correct: 0, wrong: 0 },
+          2: { correct: 0, wrong: 0 },
+        },
+        history: [],
+        playerHistory: { 1: [], 2: [] },
+        nextPlayerId: 3,
+      };
+
+      function getScoreValue(type) {
+        const correctScore = parseInt(
+          document.getElementById("correctScore").value || 100
+        );
+        const wrongScore = parseInt(
+          document.getElementById("wrongScore").value || -50
+        );
+        return type === "correct" ? correctScore : wrongScore;
+      }
+
+      function handleAddScore(player, type) {
+        const points = getScoreValue(type);
+        const playerName = document.getElementById(`player${player}Name`).value;
+        const oldScore = gameState.scores[player];
+        gameState.scores[player] += points;
+
+        if (points > 0) {
+          gameState.stats[player].correct++;
+        } else {
+          gameState.stats[player].wrong++;
+        }
+
+        const action = points > 0 ? "Correct Answer" : "Wrong Answer";
+        const historyEntry = {
+          player: player,
+          playerName: playerName,
+          points: points,
+          action: action,
+          oldScore: oldScore,
+          newScore: gameState.scores[player],
+          timestamp: new Date().toLocaleTimeString("en-US"),
+        };
+
+        gameState.history.unshift(historyEntry);
+        gameState.playerHistory[player].unshift({
+          points: points,
+          score: gameState.scores[player],
+          time: new Date().toLocaleTimeString("en-US", {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+        });
+
+        // Animate score change
+        const scoreEl = document.getElementById(`score${player}`);
+        scoreEl.classList.remove("animate");
+        void scoreEl.offsetWidth; // Trigger reflow
+        scoreEl.classList.add("animate");
+
+        // Show change indicator
+        const changeEl = document.getElementById(`change${player}`);
+        changeEl.className = "score-change-indicator"; // Reset first
+        void changeEl.offsetWidth; // Trigger reflow
+        changeEl.textContent = points > 0 ? `+${points}` : points;
+        changeEl.className =
+          "score-change-indicator show " +
+          (points > 0 ? "positive" : "negative");
+
+        updateDisplay(player);
+      }
+
+      function updateDisplay(changedPlayer = null) {
+        // Update all players, but only animate the changed one
+        const playerIds = Object.keys(gameState.scores).map(Number);
+        for (let i of playerIds) {
+          const scoreEl = document.getElementById(`score${i}`);
+          if (!scoreEl) continue;
+
+          scoreEl.textContent = gameState.scores[i];
+
+          if (gameState.scores[i] < 0) {
+            scoreEl.classList.add("negative");
+          } else {
+            scoreEl.classList.remove("negative");
+          }
+
+          const correctEl = document.getElementById(`correct${i}`);
+          const wrongEl = document.getElementById(`wrong${i}`);
+          if (correctEl)
+            correctEl.textContent = gameState.stats[i]?.correct || 0;
+          if (wrongEl) wrongEl.textContent = gameState.stats[i]?.wrong || 0;
+
+          // Update player history
+          const historyEl = document.getElementById(`history${i}`);
+          if (historyEl) {
+            if (
+              !gameState.playerHistory[i] ||
+              gameState.playerHistory[i].length === 0
+            ) {
+              historyEl.innerHTML =
+                '<div style="text-align: center; color: #9ca3af; font-size: 0.75rem; font-weight: 500;">Empty</div>';
+            } else {
+              historyEl.innerHTML = gameState.playerHistory[i]
+                .slice(0, 6)
+                .map((h, index) => {
+                  const isNew = changedPlayer === i && index === 0;
+                  return `<div class="history-item-inline ${
+                    h.points > 0 ? "correct" : "wrong"
+                  } ${isNew ? "new-item" : ""}">
+                                <strong>${h.points > 0 ? "+" : ""}${
+                    h.points
+                  }</strong> → ${h.score}
+                                <div style="font-size: 0.7rem; color: #9ca3af; margin-top: 3px; font-weight: 500;">${
+                                  h.time
+                                }</div>
+                            </div>`;
+                })
+                .join("");
+            }
+          }
+        }
+
+        updateMainHistory();
+      }
+
+      function updateMainHistory() {
+        const historyList = document.getElementById("historyList");
+        if (gameState.history.length === 0) {
+          historyList.innerHTML =
+            '<div style="text-align: center; color: #9ca3af; padding: 20px; font-weight: 500;">No activity yet</div>';
+          return;
+        }
+
+        historyList.innerHTML = gameState.history
+          .slice(0, 15)
+          .map(
+            (item) =>
+              `<div class="history-item">
+                    <strong>[${item.timestamp}]</strong> <strong>${
+                item.playerName
+              }</strong> - ${item.action} (<strong>${
+                item.points > 0 ? "+" : ""
+              }${item.points}</strong>) → <strong>${item.newScore}</strong>
+                </div>`
+          )
+          .join("");
+      }
+
+      function handleResetScores() {
+        const playerIds = Object.keys(gameState.scores).map(Number);
+        playerIds.forEach((id) => {
+          gameState.scores[id] = 0;
+          gameState.stats[id] = { correct: 0, wrong: 0 };
+          gameState.playerHistory[id] = [];
+
+          // Clear change indicators
+          const changeEl = document.getElementById(`change${id}`);
+          if (changeEl) {
+            changeEl.className = "score-change-indicator";
+          }
+        });
+
+        updateDisplay();
+      }
+
+      function handleUndoLast() {
+        if (gameState.history.length === 0) {
+          alert("No action to undo!");
+          return;
+        }
+
+        const lastAction = gameState.history.shift();
+        const player = lastAction.player;
+
+        gameState.scores[player] = lastAction.oldScore;
+
+        if (lastAction.points > 0) {
+          gameState.stats[player].correct--;
+        } else {
+          gameState.stats[player].wrong--;
+        }
+
+        gameState.playerHistory[player].shift();
+
+        updateDisplay();
+      }
+
+      function handleClearHistory() {
+        gameState.history = [];
+        const playerIds = Object.keys(gameState.scores).map(Number);
+        gameState.playerHistory = {};
+        playerIds.forEach((id) => {
+          gameState.playerHistory[id] = [];
+        });
+        updateDisplay();
+      }
+
+      function addNewPlayer() {
+        const playerId = gameState.nextPlayerId++;
+        gameState.scores[playerId] = 0;
+        gameState.stats[playerId] = { correct: 0, wrong: 0 };
+        gameState.playerHistory[playerId] = [];
+
+        const playersGrid = document.querySelector(".players-grid");
+        const newPlayerCard = document.createElement("div");
+        newPlayerCard.className = "player-card";
+        newPlayerCard.id = `playerCard${playerId}`;
+        newPlayerCard.innerHTML = `
+                <button class="btn-remove-player" onclick="removePlayer(${playerId})" title="Remove Player">×</button>
+                <div class="player-header">
+                    <input type="text" id="player${playerId}Name" value="Player ${playerId}" placeholder="Player ${playerId}">
+                </div>
+                <div class="score-section">
+                    <div class="score-main">
+                        <div class="score-display" id="score${playerId}">0</div>
+                        <div class="score-change-indicator" id="change${playerId}"></div>
+                    </div>
+                    <div class="score-history">
+                        <div class="score-history-title">History</div>
+                        <div id="history${playerId}">
+                            <div style="text-align: center; color: #9ca3af; font-size: 0.75rem; font-weight: 500;">Empty</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="stats-row">
+                    <div class="stat">
+                        <div class="stat-label">✓ Correct</div>
+                        <span class="stat-value" id="correct${playerId}">0</span>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">✗ Wrong</div>
+                        <span class="stat-value" id="wrong${playerId}">0</span>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-correct" onclick="handleAddScore(${playerId}, 'correct')">
+                        <span style="font-size: 1.25rem;">✓</span> Correct
+                    </button>
+                    <button class="btn btn-wrong" onclick="handleAddScore(${playerId}, 'wrong')">
+                        <span style="font-size: 1.25rem;">✗</span> Wrong
+                    </button>
+                </div>
+            `;
+
+        playersGrid.appendChild(newPlayerCard);
+        updateDisplay();
+        updateButtonLabels();
+      }
+
+      function removePlayer(playerId) {
+        if (Object.keys(gameState.scores).length <= 1) {
+          alert("At least 1 player is required!");
+          return;
+        }
+
+        delete gameState.scores[playerId];
+        delete gameState.stats[playerId];
+        delete gameState.playerHistory[playerId];
+
+        // Remove from history
+        gameState.history = gameState.history.filter(
+          (h) => h.player !== playerId
+        );
+
+        const playerCard = document.getElementById(`playerCard${playerId}`);
+        if (playerCard) {
+          playerCard.remove();
+        }
+
+        updateDisplay();
+      }
+
+      // Theme functions
+      function initTheme() {
+        const savedTheme = localStorage.getItem("quizTheme") || "light";
+        document.body.setAttribute("data-theme", savedTheme);
+        updateThemeMenu(savedTheme);
+      }
+
+      function updateThemeMenu(activeTheme) {
+        const themeOptions = document.querySelectorAll(".theme-option");
+        themeOptions.forEach((option) => {
+          if (option.dataset.theme === activeTheme) {
+            option.classList.add("active");
+          } else {
+            option.classList.remove("active");
+          }
+        });
+      }
+
+      function changeTheme(theme) {
+        document.body.setAttribute("data-theme", theme);
+        localStorage.setItem("quizTheme", theme);
+        updateThemeMenu(theme);
+      }
+
+      // Update button labels dynamically
+      function updateButtonLabels() {
+        const correctScore = parseInt(
+          document.getElementById("correctScore").value || 100
+        );
+        const wrongScore = parseInt(
+          document.getElementById("wrongScore").value || -50
+        );
+
+        document.querySelectorAll(".btn-correct").forEach((btn) => {
+          const span = btn.querySelector("span");
+          if (span) {
+            btn.innerHTML = `<span style="font-size: 1.25rem">✓</span> Correct ${
+              correctScore > 0 ? "+" : ""
+            }${correctScore}`;
+          }
+        });
+
+        document.querySelectorAll(".btn-wrong").forEach((btn) => {
+          const span = btn.querySelector("span");
+          if (span) {
+            btn.innerHTML = `<span style="font-size: 1.25rem">✗</span> Wrong ${
+              wrongScore > 0 ? "+" : ""
+            }${wrongScore}`;
+          }
+        });
+      }
+
+      // Event listeners
+      document.addEventListener("DOMContentLoaded", function () {
+        // Initialize theme
+        initTheme();
+
+        // Control buttons
+        document
+          .getElementById("resetBtn")
+          .addEventListener("click", handleResetScores);
+        document
+          .getElementById("clearBtn")
+          .addEventListener("click", handleClearHistory);
+        document
+          .getElementById("undoBtn")
+          .addEventListener("click", handleUndoLast);
+        document
+          .getElementById("addPlayerBtn")
+          .addEventListener("click", addNewPlayer);
+
+        // Theme toggle
+        document
+          .getElementById("themeToggle")
+          .addEventListener("click", (e) => {
+            e.stopPropagation();
+            const menu = document.getElementById("themeMenu");
+            menu.classList.toggle("show");
+          });
+
+        // Theme options
+        document.querySelectorAll(".theme-option").forEach((option) => {
+          option.addEventListener("click", () => {
+            const theme = option.dataset.theme;
+            changeTheme(theme);
+            document.getElementById("themeMenu").classList.remove("show");
+          });
+        });
+
+        // Close theme menu when clicking outside
+        document.addEventListener("click", (e) => {
+          if (!e.target.closest(".theme-selector")) {
+            document.getElementById("themeMenu").classList.remove("show");
+          }
+        });
+
+        // Score settings change
+        document
+          .getElementById("correctScore")
+          .addEventListener("input", updateButtonLabels);
+        document
+          .getElementById("wrongScore")
+          .addEventListener("input", updateButtonLabels);
+
+        updateDisplay();
+        updateButtonLabels();
+      });
+    </script>
+  </body>
+</html>
