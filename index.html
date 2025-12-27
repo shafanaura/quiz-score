@@ -89,12 +89,15 @@
       }
 
       h1 .emoji {
-        -webkit-background-clip: unset !important;
-        -webkit-text-fill-color: unset !important;
+        -webkit-background-clip: initial !important;
+        -webkit-text-fill-color: initial !important;
         background: none !important;
-        background-clip: unset !important;
-        color: initial !important;
+        background-clip: initial !important;
+        color: revert !important;
+        filter: none !important;
         display: inline-block;
+        opacity: 1 !important;
+        text-shadow: none !important;
       }
 
       .players-grid {
@@ -672,7 +675,7 @@
       }
 
       .btn-add-player-header:hover {
-        background: rgba(102, 126, 234, 0.1);
+        background: rgba(255, 255, 255, 1);
         border-color: #667eea;
         transform: translateY(-2px);
         box-shadow: 0 4px 16px rgba(102, 126, 234, 0.2);
@@ -740,11 +743,14 @@
       }
 
       body[data-theme="dark"] h1 .emoji {
-        -webkit-background-clip: unset !important;
-        -webkit-text-fill-color: unset !important;
+        -webkit-background-clip: initial !important;
+        -webkit-text-fill-color: initial !important;
         background: none !important;
-        background-clip: unset !important;
-        color: initial !important;
+        background-clip: initial !important;
+        color: revert !important;
+        filter: none !important;
+        opacity: 1 !important;
+        text-shadow: none !important;
       }
 
       body[data-theme="dark"] .player-card,
