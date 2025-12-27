@@ -18,7 +18,7 @@ A modern and responsive web application for tracking multi-player quiz scores in
 
 1. **Open HTML File**
 
-   - Open the `quiz_score_app.html` file in a modern web browser (Chrome, Firefox, Safari, Edge)
+   - Open the `index.html` file in a modern web browser (Chrome, Firefox, Safari, Edge)
 
 2. **Set Player Names**
 
